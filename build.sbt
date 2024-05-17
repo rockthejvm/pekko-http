@@ -1,24 +1,18 @@
-name := "akka-http"
+name := "pekko-http"
 
 version := "0.1"
 
-scalaVersion := "2.13.14"
+scalaVersion := "3.3.3"
 
-val akkaVersion = "2.6.20"
-val akkaHttpVersion = "10.2.10"
-val scalaTestVersion = "3.2.7"
+val pekkoVersion = "1.0.1"
+val scalaTestVersion = "3.2.17"
 
 libraryDependencies ++= Seq(
-  // akka streams
-  "com.typesafe.akka" %% "akka-stream" % akkaVersion,
-  // akka http
-  "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
-  "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
-  "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion,
-  // testing
-  "com.typesafe.akka" %% "akka-testkit" % akkaVersion,
+  "org.apache.pekko" %% "pekko-stream" % pekkoVersion,
+  "org.apache.pekko" %% "pekko-http" % pekkoVersion,
+  "org.apache.pekko" %% "pekko-http-spray-json" % pekkoVersion,
+  "org.apache.pekko" %% "pekko-http-testkit" % pekkoVersion,
+  "org.apache.pekko" %% "pekko-testkit" % pekkoVersion,
   "org.scalatest" %% "scalatest" % scalaTestVersion,
-  
-  // JWT
-  "com.pauldijou" %% "jwt-spray-json" % "5.0.0"
+  ("com.pauldijou" %% "jwt-play-json" % "5.0.0").cross(CrossVersion.for3Use2_13)
 )

@@ -1,12 +1,12 @@
 package part3_highlevelserver
 
-import akka.actor.{ActorSystem, Props}
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
-import akka.pattern.ask
-import akka.stream.ActorMaterializer
-import akka.http.scaladsl.server.Directives._
-import akka.util.Timeout
+import org.apache.pekko.actor.{ActorSystem, Props}
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity}
+import org.apache.pekko.pattern.ask
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.util.Timeout
 
 import scala.concurrent.duration._
 import part2_lowlevelserver.{Guitar, GuitarDB, GuitarStoreJsonProtocol}
@@ -19,7 +19,7 @@ import spray.json._
 object HighLevelExample extends App with GuitarStoreJsonProtocol {
 
   implicit val system: ActorSystem = ActorSystem("HighLevelExample")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
 
   import GuitarDB._
@@ -34,7 +34,7 @@ object HighLevelExample extends App with GuitarStoreJsonProtocol {
   /*
     setup
    */
-  val guitarDb = system.actorOf(Props[GuitarDB], "LowLevelGuitarDB")
+  val guitarDb = system.actorOf(Props[GuitarDB](), "LowLevelGuitarDB")
   val guitarList = List(
     Guitar("Fender", "Stratocaster"),
     Guitar("Gibson", "Les Paul"),
@@ -49,7 +49,7 @@ object HighLevelExample extends App with GuitarStoreJsonProtocol {
   val guitarServerRoute =
     path("api" / "guitar") {
       // ALWAYS PUT THE MORE SPECIFIC ROUTE FIRST
-      parameter('id.as[Int]) { guitarId =>
+      parameter("id".as[Int]) { guitarId =>
         get {
           val guitarFuture: Future[Option[Guitar]] = (guitarDb ? FindGuitar(guitarId)).mapTo[Option[Guitar]]
           val entityFuture = guitarFuture.map { guitarOption =>
@@ -87,7 +87,7 @@ object HighLevelExample extends App with GuitarStoreJsonProtocol {
     } ~
     path("api" / "guitar" / "inventory") {
       get {
-        parameter('inStock.as[Boolean]) { inStock =>
+        parameter("inStock".as[Boolean]) { inStock =>
           val guitarFuture: Future[List[Guitar]] = (guitarDb ? FindGuitarsInStock(inStock)).mapTo[List[Guitar]]
           val entityFuture = guitarFuture.map { guitars =>
             HttpEntity(
@@ -107,7 +107,7 @@ object HighLevelExample extends App with GuitarStoreJsonProtocol {
   val simplifiedGuitarServerRoute =
     (pathPrefix("api" / "guitar") & get) {
       path("inventory") {
-        parameter('inStock.as[Boolean]) { inStock =>
+        parameter("inStock".as[Boolean]) { inStock =>
           complete(
             (guitarDb ? FindGuitarsInStock(inStock))
               .mapTo[List[Guitar]]
@@ -116,7 +116,7 @@ object HighLevelExample extends App with GuitarStoreJsonProtocol {
           )
         }
       } ~
-      (path(IntNumber) | parameter('id.as[Int])) { guitarId =>
+      (path(IntNumber) | parameter("id".as[Int])) { guitarId =>
         complete(
           (guitarDb ? FindGuitar(guitarId))
             .mapTo[Option[Guitar]]

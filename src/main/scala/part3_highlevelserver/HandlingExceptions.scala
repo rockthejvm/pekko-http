@@ -1,16 +1,16 @@
 package part3_highlevelserver
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.StatusCodes
-import akka.stream.ActorMaterializer
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.ExceptionHandler
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.server.ExceptionHandler
 
 object HandlingExceptions extends App {
 
   implicit val system: ActorSystem = ActorSystem("HandlingExceptions")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
 
   val simpleRoute =
@@ -20,7 +20,7 @@ object HandlingExceptions extends App {
         throw new RuntimeException("Getting all the people took too long")
       } ~
       post {
-        parameter('id) { id =>
+        parameter("id") { id =>
           if (id.length > 2)
             throw new NoSuchElementException(s"Parameter $id cannot be found in the database, TABLE FLIP!")
 
@@ -58,7 +58,7 @@ object HandlingExceptions extends App {
         } ~
         handleExceptions(noSuchElementExceptionHandler) {
           post {
-            parameter('id) { id =>
+            parameter("id") { id =>
               if (id.length > 2)
                 throw new NoSuchElementException(s"Parameter $id cannot be found in the database, TABLE FLIP!")
 

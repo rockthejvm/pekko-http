@@ -1,10 +1,10 @@
 package part3_highlevelserver
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
-import akka.stream.ActorMaterializer
-import akka.http.scaladsl.server.Directives._
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.http.scaladsl.server.Directives._
 import spray.json._
 
 import scala.concurrent.duration._
@@ -13,13 +13,13 @@ import scala.util.{Failure, Success}
 case class Person(pin: Int, name: String)
 
 trait PersonJsonProtocol extends DefaultJsonProtocol {
-  implicit val personJson = jsonFormat2(Person)
+  implicit val personJson: JsonFormat[Person] = jsonFormat2(Person)
 }
 
 object HighLevelExercise extends App with PersonJsonProtocol {
 
   implicit val system: ActorSystem = ActorSystem("HighLevelExercise")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
 
 
@@ -44,7 +44,7 @@ object HighLevelExercise extends App with PersonJsonProtocol {
   val personServerRoute =
     pathPrefix("api" / "people") {
       get {
-        (path(IntNumber) | parameter('pin.as[Int])) { pin =>
+        (path(IntNumber) | parameter("pin".as[Int])) { pin =>
           complete(
             HttpEntity(
               ContentTypes.`application/json`,

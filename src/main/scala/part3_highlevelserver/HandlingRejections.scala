@@ -1,16 +1,16 @@
 package part3_highlevelserver
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.StatusCodes
-import akka.stream.ActorMaterializer
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{MethodRejection, MissingQueryParamRejection, Rejection, RejectionHandler}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.server.{MethodRejection, MissingQueryParamRejection, Rejection, RejectionHandler}
 
 object HandlingRejections extends App {
 
   implicit val system: ActorSystem = ActorSystem("HandlingRejections")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
 
 
@@ -19,18 +19,18 @@ object HandlingRejections extends App {
       get {
         complete(StatusCodes.OK)
       } ~
-      parameter('id) { _ =>
+      parameter("id") { _ =>
         complete(StatusCodes.OK)
       }
     }
 
   // Rejection handlers
-  val badRequestHandler: RejectionHandler = { rejections: Seq[Rejection] =>
+  val badRequestHandler: RejectionHandler = { (rejections: Seq[Rejection]) =>
     println(s"I have encountered rejections: $rejections")
     Some(complete(StatusCodes.BadRequest))
   }
 
-  val forbiddenHandler: RejectionHandler = { rejections: Seq[Rejection] =>
+  val forbiddenHandler: RejectionHandler = { (rejections: Seq[Rejection]) =>
     println(s"I have encountered rejections: $rejections")
     Some(complete(StatusCodes.Forbidden))
   }
@@ -44,7 +44,7 @@ object HandlingRejections extends App {
         } ~
         post {
           handleRejections(forbiddenHandler) { // handle rejections WITHIN
-            parameter('myParam) { _ =>
+            parameter("myParam") { _ =>
               complete(StatusCodes.OK)
             }
           }
@@ -55,7 +55,7 @@ object HandlingRejections extends App {
 //  Http().bindAndHandle(simpleRouteWithHandlers, "localhost", 8080)
 
   // list(method rejection, query param rejection)
-  implicit val customRejectionHandler = RejectionHandler.newBuilder()
+  implicit val customRejectionHandler: RejectionHandler = RejectionHandler.newBuilder()
     .handle {
       case m: MissingQueryParamRejection =>
         println(s"I got a query param rejection: $m")

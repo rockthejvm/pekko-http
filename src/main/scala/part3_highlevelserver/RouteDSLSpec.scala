@@ -1,10 +1,11 @@
 package part3_highlevelserver
 
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
-import akka.http.scaladsl.server.Directives.{not => _, _}
-import akka.http.scaladsl.server.MethodRejection
-import akka.http.scaladsl.testkit.ScalatestRouteTest
+import org.apache.pekko.http.scaladsl.unmarshalling.FromRequestUnmarshaller
+import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.Directives.{not => _, _}
+import org.apache.pekko.http.scaladsl.server.MethodRejection
+import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpecLike
 import spray.json._
@@ -15,7 +16,9 @@ import scala.concurrent.duration._
 case class Book(id: Int, author: String, title: String)
 
 trait BookJsonProtocol extends DefaultJsonProtocol {
-  implicit val bookFormat = jsonFormat3(Book)
+  implicit val bookFormat: RootJsonFormat[Book] = jsonFormat3(Book)
+  implicit val bookListFormat: RootJsonFormat[List[Book]] = listFormat[Book]
+  implicit val bookOptionFormat: JsonFormat[Option[Book]] = optionFormat[Book]
 }
 
 class RouteDSLSpec extends AnyWordSpecLike with ScalatestRouteTest with BookJsonProtocol {
@@ -66,7 +69,7 @@ class RouteDSLSpec extends AnyWordSpecLike with ScalatestRouteTest with BookJson
     "not accept other methods than POST and GET" in {
       Delete("/api/book") ~> libraryRoute ~> check {
         // careful with the `not` verb because it's a directive as well
-        // can solve the ambiguity by adding an `import akka.http.scaladsl.server.Directives.{not => _, _}` to remove it
+        // can solve the ambiguity by adding an `import org.apache.pekko.http.scaladsl.server.Directives.{not => _, _}` to remove it
         rejections should not be empty   // "natural language" style
         rejections.should(not).be(empty) // same
 
@@ -110,7 +113,7 @@ object RouteDSLSpec extends BookJsonProtocol with SprayJsonSupport {
         complete(books.filter(_.author == author))
       } ~
       get {
-        (path(IntNumber) | parameter('id.as[Int])) { id =>
+        (path(IntNumber) | parameter("id".as[Int])) { id =>
           complete(books.find(_.id == id))
         } ~
         pathEndOrSingleSlash {

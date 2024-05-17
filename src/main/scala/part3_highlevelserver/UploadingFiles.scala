@@ -2,14 +2,14 @@ package part3_highlevelserver
 
 import java.io.File
 
-import akka.Done
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, Multipart}
-import akka.stream.{ActorMaterializer, IOResult}
-import akka.http.scaladsl.server.Directives._
-import akka.stream.scaladsl.{FileIO, Sink, Source}
-import akka.util.ByteString
+import org.apache.pekko.Done
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, Multipart}
+import org.apache.pekko.stream.{ActorMaterializer, IOResult}
+import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.stream.scaladsl.{FileIO, Sink, Source}
+import org.apache.pekko.util.ByteString
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -17,7 +17,7 @@ import scala.util.{Failure, Success}
 object UploadingFiles extends App {
 
   implicit val system: ActorSystem = ActorSystem()
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
 
   val filesRoute =

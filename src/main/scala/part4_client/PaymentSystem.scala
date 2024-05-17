@@ -1,15 +1,15 @@
 package part4_client
 
-import akka.pattern.ask
+import org.apache.pekko.pattern.ask
 
 import scala.concurrent.duration._
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.StatusCodes
-import akka.stream.ActorMaterializer
-import akka.http.scaladsl.server.Directives._
-import akka.util.Timeout
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.util.Timeout
 import spray.json._
 
 
@@ -22,8 +22,8 @@ object PaymentSystemDomain {
 }
 
 trait PaymentJsonProtocol extends DefaultJsonProtocol {
-  implicit val creditCardFormat = jsonFormat3(CreditCard)
-  implicit val paymentRequestFormat = jsonFormat3(PaymentSystemDomain.PaymentRequest)
+  implicit val creditCardFormat: RootJsonFormat[CreditCard] = jsonFormat3(CreditCard)
+  implicit val paymentRequestFormat: RootJsonFormat[PaymentSystemDomain.PaymentRequest] = jsonFormat3(PaymentSystemDomain.PaymentRequest)
 }
 
 class PaymentValidator extends Actor with ActorLogging {
@@ -41,11 +41,11 @@ object PaymentSystem extends App with PaymentJsonProtocol with SprayJsonSupport 
 
   // microservice for payments
   implicit val system: ActorSystem = ActorSystem("PaymentSystem")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
   import PaymentSystemDomain._
 
-  val paymentValidator = system.actorOf(Props[PaymentValidator], "paymentValidator")
+  val paymentValidator = system.actorOf(Props[PaymentValidator](), "paymentValidator")
   implicit val timeout: Timeout = Timeout(2.seconds)
 
   val paymentRoute =

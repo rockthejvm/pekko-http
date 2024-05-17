@@ -1,17 +1,17 @@
 package part3_highlevelserver
 
-import akka.actor.ActorSystem
-import akka.event.LoggingAdapter
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest, StatusCodes}
-import akka.stream.ActorMaterializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.event.LoggingAdapter
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest, StatusCodes}
+import org.apache.pekko.stream.ActorMaterializer
 
 object DirectivesBreakdown extends App {
 
   implicit val system: ActorSystem = ActorSystem("DirectivesBreakdown")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
-  import akka.http.scaladsl.server.Directives._
+  import org.apache.pekko.http.scaladsl.server.Directives._
 
   /**
     * Type #1: filtering directives
@@ -77,7 +77,7 @@ object DirectivesBreakdown extends App {
   val queryParamExtractionRoute =
     // /api/item?id=45
     path("api" / "item") {
-      parameter('id.as[Int]) { (itemId: Int) =>
+      parameter("id".as[Int]) { (itemId: Int) =>
         println(s"I've extracted the ID as $itemId")
         complete(StatusCodes.OK)
       }
@@ -139,13 +139,13 @@ object DirectivesBreakdown extends App {
     }
 
   val blogByQueryParamRoute =
-    parameter('postId.as[Int]) { (blogpostId: Int) =>
+    parameter("postId".as[Int]) { (blogpostId: Int) =>
       // the SAME server logic
       complete(StatusCodes.OK)
     }
 
   val combinedBlodByIdRoute =
-    (path(IntNumber) | parameter('postId.as[Int])) { (blogpostId: Int) =>
+    (path(IntNumber) | parameter("postId".as[Int])) { (blogpostId: Int) =>
       // your original server logic
       complete(StatusCodes.OK)
     }

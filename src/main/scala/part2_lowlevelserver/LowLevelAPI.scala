@@ -1,12 +1,12 @@
 package part2_lowlevelserver
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.Http.IncomingConnection
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.Location
-import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Flow, Sink}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.Http.IncomingConnection
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.model.headers.Location
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.stream.scaladsl.{Flow, Sink}
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -15,7 +15,7 @@ import scala.util.{Failure, Success}
 object LowLevelAPI extends App {
 
   implicit val system: ActorSystem = ActorSystem("LowLevelServerAPI")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
 
   val serverSource = Http().bind("localhost", 8000)
@@ -43,7 +43,7 @@ object LowLevelAPI extends App {
           """
             |<html>
             | <body>
-            |   Hello from Akka HTTP!
+            |   Hello from Pekko HTTP!
             | </body>
             |</html>
           """.stripMargin
@@ -89,7 +89,7 @@ object LowLevelAPI extends App {
           """
             |<html>
             | <body>
-            |   Hello from Akka HTTP!
+            |   Hello from Pekko HTTP!
             | </body>
             |</html>
           """.stripMargin
@@ -124,7 +124,7 @@ object LowLevelAPI extends App {
   Http().bindAndHandleAsync(asyncRequestHandler, "localhost", 8081)
 
   /*
-    Method 3: async via Akka streams
+    Method 3: async via Pekko streams
    */
   val streamsBasedRequestHandler: Flow[HttpRequest, HttpResponse, _] = Flow[HttpRequest].map {
     case HttpRequest(HttpMethods.GET, Uri.Path("/home"), _, _, _) =>  // method, URI, HTTP headers, content and the protocol (HTTP1.1/HTTP2.0)
@@ -135,7 +135,7 @@ object LowLevelAPI extends App {
           """
             |<html>
             | <body>
-            |   Hello from Akka HTTP!
+            |   Hello from Pekko HTTP!
             | </body>
             |</html>
           """.stripMargin

@@ -1,15 +1,15 @@
 package part1_recap
 
-import akka.actor.SupervisorStrategy.{Restart, Stop}
-import akka.actor.{Actor, ActorLogging, ActorSystem, OneForOneStrategy, PoisonPill, Props, Stash, SupervisorStrategy}
-import akka.util.Timeout
+import org.apache.pekko.actor.SupervisorStrategy.{Restart, Stop}
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, OneForOneStrategy, PoisonPill, Props, Stash, SupervisorStrategy}
+import org.apache.pekko.util.Timeout
 
-object AkkaRecap extends App {
+object PekkoRecap extends App {
 
   class SimpleActor extends Actor with ActorLogging with Stash {
     override def receive: Receive = {
       case "createChild" =>
-        val childActor = context.actorOf(Props[SimpleActor], "myChild")
+        val childActor = context.actorOf(Props[SimpleActor](), "myChild")
         childActor ! "hello"
       case "stashThis" =>
         stash()
@@ -36,9 +36,9 @@ object AkkaRecap extends App {
   }
 
   // actor encapsulation
-  val system = ActorSystem("AkkaRecap")
+  val system = ActorSystem("PekkoRecap")
   // #1: you can only instantiate an actor through the actor system
-  val actor = system.actorOf(Props[SimpleActor], "simpleActor")
+  val actor = system.actorOf(Props[SimpleActor](), "simpleActor")
   // #2: sending messages
   actor ! "hello"
   /*
@@ -60,7 +60,7 @@ object AkkaRecap extends App {
   // logging
   // supervision
 
-  // configure Akka infrastructure: dispatchers, routers, mailboxes
+  // configure Pekko infrastructure: dispatchers, routers, mailboxes
 
   // schedulers
   import system.dispatcher
@@ -70,14 +70,14 @@ object AkkaRecap extends App {
     actor ! "delayed happy birthday!"
   }
 
-  // Akka patterns including FSM + ask pattern
-  import akka.pattern.ask
+  // Pekko patterns including FSM + ask pattern
+  import org.apache.pekko.pattern.ask
   implicit val timeout: Timeout = Timeout(3.seconds)
 
   val future = actor ? "question"
 
   // the pipe pattern
-  import akka.pattern.pipe
-  val anotherActor = system.actorOf(Props[SimpleActor], "anotherSimpleActor")
+  import org.apache.pekko.pattern.pipe
+  val anotherActor = system.actorOf(Props[SimpleActor](), "anotherSimpleActor")
   future.mapTo[String].pipeTo(anotherActor)
 }

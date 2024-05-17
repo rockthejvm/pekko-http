@@ -3,10 +3,10 @@ package part2_lowlevelserver
 import java.io.InputStream
 import java.security.{KeyStore, SecureRandom}
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.{ConnectionContext, Http, HttpsConnectionContext}
-import akka.stream.ActorMaterializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.{ConnectionContext, Http, HttpsConnectionContext}
+import org.apache.pekko.stream.ActorMaterializer
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 
 object HttpsContext {
@@ -14,7 +14,7 @@ object HttpsContext {
   val ks: KeyStore = KeyStore.getInstance("PKCS12")
   val keystoreFile: InputStream = getClass.getClassLoader.getResourceAsStream("keystore.pkcs12")
   // alternative: new FileInputStream(new File("src/main/resources/keystore.pkcs12"))
-  val password = "akka-https".toCharArray // fetch the password from a secure place!
+  val password = "pekko-https".toCharArray // fetch the password from a secure place!
   ks.load(keystoreFile, password)
 
   // Step 2: initialize a key manager
@@ -36,7 +36,7 @@ object HttpsContext {
 object LowLevelHttps extends App {
 
   implicit val system: ActorSystem = ActorSystem("LowLevelHttps")
-  // implicit val materializer: ActorMaterializer = ActorMaterializer() // needed only for Akka Streams < 2.6
+  // implicit val materializer: ActorMaterializer = ActorMaterializer() // needed only for Pekko Streams < 2.6
 
   val requestHandler: HttpRequest => HttpResponse = {
     case HttpRequest(HttpMethods.GET, _, _, _, _) =>
@@ -47,7 +47,7 @@ object LowLevelHttps extends App {
           """
             |<html>
             | <body>
-            |   Hello from Akka HTTP!
+            |   Hello from Pekko HTTP!
             | </body>
             |</html>
           """.stripMargin

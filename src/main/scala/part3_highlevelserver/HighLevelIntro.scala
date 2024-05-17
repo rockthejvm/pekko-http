@@ -1,20 +1,20 @@
 package part3_highlevelserver
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
-import akka.http.scaladsl.server.Route
-import akka.stream.ActorMaterializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.Route
+import org.apache.pekko.stream.ActorMaterializer
 import part2_lowlevelserver.HttpsContext
 
 object HighLevelIntro extends App {
 
   implicit val system: ActorSystem = ActorSystem("HighLevelIntro")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
 
   // directives
-  import akka.http.scaladsl.server.Directives._
+  import org.apache.pekko.http.scaladsl.server.Directives._
 
   val simpleRoute: Route =
     path("home") { // DIRECTIVE
@@ -46,7 +46,7 @@ object HighLevelIntro extends App {
           """
             |<html>
             | <body>
-            |   Hello from the high level Akka HTTP!
+            |   Hello from the high level Pekko HTTP!
             | </body>
             |</html>
           """.stripMargin

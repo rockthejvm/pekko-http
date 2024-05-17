@@ -1,12 +1,12 @@
 package part2_lowlevelserver
 
-import akka.pattern.ask
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.Uri.Query
-import akka.http.scaladsl.model._
-import akka.stream.ActorMaterializer
-import akka.util.Timeout
+import org.apache.pekko.pattern.ask
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.Uri.Query
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.util.Timeout
 
 
 import scala.concurrent.Future
@@ -70,13 +70,13 @@ class GuitarDB extends Actor with ActorLogging {
 // step 2
 trait GuitarStoreJsonProtocol extends DefaultJsonProtocol {
   // step 3
-  implicit val guitarFormat = jsonFormat3(Guitar)
+  implicit val guitarFormat: JsonFormat[Guitar] = jsonFormat3(Guitar)
 }
 
 object LowLevelRest extends App with GuitarStoreJsonProtocol {
 
   implicit val system: ActorSystem = ActorSystem("LowLevelRest")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
   import GuitarDB._
 
@@ -104,7 +104,7 @@ object LowLevelRest extends App with GuitarStoreJsonProtocol {
   /*
     setup
    */
-  val guitarDb = system.actorOf(Props[GuitarDB], "LowLevelGuitarDB")
+  val guitarDb = system.actorOf(Props[GuitarDB](), "LowLevelGuitarDB")
   val guitarList = List(
     Guitar("Fender", "Stratocaster"),
     Guitar("Gibson", "Les Paul"),

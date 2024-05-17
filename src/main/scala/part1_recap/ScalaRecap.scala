@@ -80,8 +80,8 @@ object ScalaRecap extends App {
   // based on pattern matching!
 
   // type aliases
-  type AkkaReceive = PartialFunction[Any, Unit]
-  def receive: AkkaReceive = {
+  type PekkoReceive = PartialFunction[Any, Unit]
+  def receive: PekkoReceive = {
     case 1 => println("hello!")
     case _ => println("confused...")
   }

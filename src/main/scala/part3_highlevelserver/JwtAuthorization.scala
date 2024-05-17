@@ -2,30 +2,30 @@ package part3_highlevelserver
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.stream.ActorMaterializer
-import akka.http.scaladsl.server.Directives._
-import pdi.jwt.{JwtAlgorithm, JwtClaim, JwtSprayJson}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.apache.pekko.http.scaladsl.model.{HttpResponse, StatusCodes}
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.http.scaladsl.server.Directives._
+import pdi.jwt.{JwtAlgorithm, JwtClaim, JwtJson}
 import spray.json._
 
 import scala.util.{Failure, Success}
 
 
-object SecurityDomain extends DefaultJsonProtocol {
-  case class LoginRequest(username: String, password: String)
-  implicit val loginRequestFormat = jsonFormat2(LoginRequest)
+case class LoginRequest(username: String, password: String)
+
+trait SecurityProtocol extends DefaultJsonProtocol {
+  implicit val loginRequestFormat: RootJsonFormat[LoginRequest] = jsonFormat2(LoginRequest)
 }
 
-object JwtAuthorization extends App with SprayJsonSupport {
+object JwtAuthorization extends App with SprayJsonSupport with SecurityProtocol {
 
   implicit val system: ActorSystem = ActorSystem()
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
-  import SecurityDomain._
 
   val superSecretPasswordDb = Map(
     "admin" -> "admin",
@@ -45,15 +45,15 @@ object JwtAuthorization extends App with SprayJsonSupport {
       issuer = Some("rockthejvm.com")
     )
 
-    JwtSprayJson.encode(claims, secretKey, algorithm) // JWT string
+    JwtJson.encode(claims, secretKey, algorithm) // JWT string
   }
 
-  def isTokenExpired(token: String): Boolean = JwtSprayJson.decode(token, secretKey, Seq(algorithm)) match {
+  def isTokenExpired(token: String): Boolean = JwtJson.decode(token, secretKey, Seq(algorithm)) match {
     case Success(claims) => claims.expiration.getOrElse(0L) < System.currentTimeMillis() / 1000
     case Failure(_) => true
   }
 
-  def isTokenValid(token: String): Boolean = JwtSprayJson.isValid(token, secretKey, Seq(algorithm))
+  def isTokenValid(token: String): Boolean = JwtJson.isValid(token, secretKey, Seq(algorithm))
 
   val loginRoute =
     post {

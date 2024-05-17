@@ -1,14 +1,15 @@
 package part3_highlevelserver
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
-import akka.stream.ActorMaterializer
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
-import akka.pattern.ask
-import akka.util.Timeout
+import org.apache.pekko.actor.{Actor, ActorLogging, ActorSystem, Props}
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.unmarshalling.FromRequestUnmarshaller
+import org.apache.pekko.pattern.ask
+import org.apache.pekko.util.Timeout
+
 // step 1
 import spray.json._
 
@@ -57,7 +58,9 @@ class GameAreaMap extends Actor with ActorLogging {
 
 // step 2
 trait PlayerJsonProtocol extends DefaultJsonProtocol {
-  implicit val playerFormat = jsonFormat3(Player)
+  implicit val playerFormat: RootJsonFormat[Player] = jsonFormat3(Player)
+  // important - you need to have implicits also for wrapper, either derived or written explicitly
+  implicit val playerListFormat: RootJsonFormat[List[Player]] = listFormat[Player]
 }
 
 object MarshallingJSON extends App
@@ -67,11 +70,11 @@ object MarshallingJSON extends App
   with SprayJsonSupport {
 
   implicit val system: ActorSystem = ActorSystem("MarshallingJSON")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
   import GameAreaMap._
 
-  val rtjvmGameMap = system.actorOf(Props[GameAreaMap], "rockTheJVMGameAreaMap")
+  val rtjvmGameMap = system.actorOf(Props[GameAreaMap](), "rockTheJVMGameAreaMap")
   val playersList = List(
     Player("martin_killz_u", "Warrior", 70),
     Player("rolandbraveheart007", "Elf", 67),
@@ -98,9 +101,8 @@ object MarshallingJSON extends App
         path("class" / Segment) { characterClass =>
           val playersByClassFuture = (rtjvmGameMap ? GetPlayersByClass(characterClass)).mapTo[List[Player]]
           complete(playersByClassFuture)
-
         } ~
-          (path(Segment) | parameter('nickname)) { nickname =>
+          (path(Segment) | parameter("nickname")) { nickname =>
             val playerOptionFuture = (rtjvmGameMap ? GetPlayer(nickname)).mapTo[Option[Player]]
             complete(playerOptionFuture)
           } ~

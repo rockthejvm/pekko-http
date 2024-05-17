@@ -1,16 +1,16 @@
 package playground
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model._
-import akka.stream.ActorMaterializer
-import akka.http.scaladsl.server.Directives._
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.http.scaladsl.server.Directives._
 import scala.io.StdIn
 
 object Playground extends App {
 
-  implicit val system: ActorSystem = ActorSystem("AkkaHttpPlayground")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  implicit val system: ActorSystem = ActorSystem("PekkoHttpPlayground")
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
 
   import system.dispatcher
 
@@ -21,7 +21,7 @@ object Playground extends App {
         """
           |<html>
           | <body>
-          |   Rock the JVM with Akka HTTP!
+          |   Rock the JVM with Pekko HTTP!
           | </body>
           |</html>
         """.stripMargin

@@ -1,15 +1,15 @@
 package part1_recap
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, OverflowStrategy}
-import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.{ActorMaterializer, OverflowStrategy}
+import org.apache.pekko.stream.scaladsl.{Flow, Keep, Sink, Source}
 
 import scala.util.{Failure, Success}
 
-object AkkaStreamsRecap extends App {
+object PekkoStreamsRecap extends App {
 
-  implicit val system: ActorSystem = ActorSystem("AkkaStreamsRecap")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  implicit val system: ActorSystem = ActorSystem("PekkoStreamsRecap")
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
 
   val source = Source(1 to 100)

@@ -1,10 +1,10 @@
 package part4_client
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model._
-import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Sink, Source}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.stream.scaladsl.{Sink, Source}
 
 import scala.util.{Failure, Success}
 
@@ -13,7 +13,7 @@ import spray.json._
 object ConnectionLevel extends App with PaymentJsonProtocol {
 
   implicit val system: ActorSystem = ActorSystem("ConnectionLevel")
-  // implicit val materializer = ActorMaterializer() // needed only with Akka Streams < 2.6
+  // implicit val materializer = ActorMaterializer() // needed only with Pekko Streams < 2.6
   import system.dispatcher
 
 
